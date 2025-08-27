@@ -1,12 +1,49 @@
-# React + Vite
+# React + Vite Todo List App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- A simple and user-friendly Todo List application built with React + Vite.  
+- Supports login/signup, task management (add, update, check/uncheck, delete), and persistence using LocalStorage.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Wireframes
+- ## Login/Signup page
+![Login Wireframe](./public/login.png)
 
-## Expanding the ESLint configuration
+- ## Todo page
+![Todo Wireframe](./public/Todo.png)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# HTML tags used
+- ## Login/Signup page
+    - div&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> Layout container.
+    - h1/ h2&nbsp;-> Heading/Title(e.g., Login).
+    - form&nbsp;&nbsp;&nbsp;&nbsp;-> To get the user details.
+    - input&nbsp;&nbsp;&nbsp;-> For user name and password fields.
+    - button -> For login/sign-up action.
+    - p&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> For text.
+
+- ## Todo Page
+    - div&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> Layout container.
+    - h1/ h2&nbsp;-> Heading/Title(e.g., My ToDo List).
+    - form&nbsp;&nbsp;&nbsp;&nbsp;-> For adding new taks.
+    - input&nbsp;&nbsp;&nbsp;-> Text box for entering a task
+    - button -> Add/update/delete.
+    - ul&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> Unordered list to display tasks.
+    - li&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> Individual task items.
+    - input type="checkbox" -> To mark task complete or not.
+
+# Workflow
+- ## Login/Signup
+    - If the user already signed up:
+        - user can enter their name and password. User name and password are validated and redirected to Todo page.
+    - If not signed up:
+        - The user can create a new account by selecting the sign up button. New user detail is stored in localstorage.
+
+- ## Todo page
+    - The application fetches tasks for the signed in user and showed as unordered list.
+    - In the Todo page user can,
+        - Add task - The user can add new tasks, which are appended to the unordered list.
+        - Edit task - The user can edit existing tasks by clicking the edit button.
+        - Check/uncheck task - The user can mark tasks as completed or not using the checkbox.
+        - Delete task- The user can delete an exising task by clicking the delete button.
+- ## Logout 
+    - User can logout from the application. 
+    - Clears current user session. Redirects back to Login Page.

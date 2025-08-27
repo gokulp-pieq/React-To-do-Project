@@ -23,7 +23,7 @@ body {
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.15); /* softer realistic shadow */
-  width: 350px;
+  width: 50%;
   text-align: center;
 }
 
