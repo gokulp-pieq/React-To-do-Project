@@ -1,32 +1,41 @@
 import { useState, useEffect } from "react";
 
-function Todo({ user }) {
-  const [tasks, setTasks] = useState([]);
-  const [input, setInput] = useState("");
+type Task = {
+  id: number;
+  text: string;
+  checked: boolean;
+};
 
-  // Load tasks from localStorage
+type TodoProps = {
+  user: string;
+  onLogout: () => void;
+};
+
+function Todo({ user, onLogout }: TodoProps) {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [input, setInput] = useState<string>("");
+
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem(`tasks_${user}`)) || [];
+    const saved = JSON.parse(localStorage.getItem(`tasks_${user}`) || "[]") as Task[];
     setTasks(saved);
   }, [user]);
 
-  // Save tasks to localStorage
   useEffect(() => {
     localStorage.setItem(`tasks_${user}`, JSON.stringify(tasks));
   }, [tasks, user]);
 
   const addTask = () => {
     if (input.trim()) {
-      setTasks([...tasks, { text: input, id: Date.now() }]);
+      setTasks([...tasks, { text: input, id: Date.now(), checked: false }]);
       setInput("");
     }
   };
 
-  const deleteTask = (id) => {
+  const deleteTask = (id: number) => {
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  const updateTask = (id) => {
+  const updateTask = (id: number) => {
     const newText = prompt("Update task:");
     if (newText) {
       setTasks(
@@ -37,9 +46,23 @@ function Todo({ user }) {
     }
   };
 
+  const toggleCheck = (id: number) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, checked: !task.checked } : task
+      )
+    );
+  };
+
   return (
     <div className="todo-container">
-      <h2>{user}'s ToDo List</h2>
+      <div className="todo-header">
+        <h2>{user}'s ToDo List</h2>
+        <button className="logout-btn" onClick={onLogout}>
+          Logout
+        </button>
+      </div>
+
       <div className="todo-input">
         <input
           type="text"
@@ -52,7 +75,12 @@ function Todo({ user }) {
 
       <ul className="todo-list">
         {tasks.map((task) => (
-          <li key={task.id}>
+          <li key={task.id} className={task.checked ? "checked" : ""}>
+            <input
+              type="checkbox"
+              checked={task.checked}
+              onChange={() => toggleCheck(task.id)}
+            />
             <span>{task.text}</span>
             <div>
               <button onClick={() => updateTask(task.id)}>Edit</button>
