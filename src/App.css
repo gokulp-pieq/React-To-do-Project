@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background: #e0e0e3;
+  background: #f0f2f5; /* softer light gray background */
   margin: 0;
   padding: 0;
 }
@@ -12,17 +12,23 @@ body {
   align-items: center;
 }
 
+.login-container button {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+}
+
 .login-container, .todo-container {
-  background: rgb(242, 242, 245);
+  background: #ffffff; /* pure white card */
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0px 4px 12px rgba(33, 202, 21, 0.1);
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.15); /* softer realistic shadow */
   width: 350px;
   text-align: center;
 }
 
 .login-container input, .todo-input input {
-  width: 70%;
+  width: 100%;
   padding: 8px;
   margin: 10px 0;
   border: 1px solid #ccc;
@@ -35,12 +41,12 @@ button {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  background: #007bff;
+  background: #4a90e2; /* modern blue */
   color: white;
 }
 
 button:hover {
-  background: #0056b3;
+  background: #357abd; /* darker blue on hover */
 }
 
 .todo-input {
@@ -56,7 +62,7 @@ button:hover {
 }
 
 .todo-list li {
-  background: #d5dce3;
+  background: #f7f9fc; /* soft light background for tasks */
   margin: 8px 0;
   padding: 10px;
   border-radius: 6px;
@@ -67,7 +73,7 @@ button:hover {
 
 .checked span {
   text-decoration: line-through;
-  color: gray;
+  color: #999; /* softer gray for checked tasks */
 }
 
 .todo-header {
@@ -78,7 +84,7 @@ button:hover {
 
 .logout-btn {
   padding: 6px 12px;
-  background-color: #e74c3c;
+  background-color: #e74c3c; /* red */
   border: none;
   border-radius: 5px;
   color: white;
@@ -86,5 +92,5 @@ button:hover {
 }
 
 .logout-btn:hover {
-  background-color: #c0392b;
+  background-color: #c0392b; /* darker red */
 }

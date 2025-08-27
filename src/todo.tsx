@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 type Task = {
-  id: number;
+  id: string;
   text: string;
   checked: boolean;
 };
@@ -14,6 +15,7 @@ type TodoProps = {
 function Todo({ user, onLogout }: TodoProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [input, setInput] = useState<string>("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem(`tasks_${user}`) || "[]") as Task[];
@@ -24,29 +26,41 @@ function Todo({ user, onLogout }: TodoProps) {
     localStorage.setItem(`tasks_${user}`, JSON.stringify(tasks));
   }, [tasks, user]);
 
-  const addTask = () => {
-    if (input.trim()) {
-      setTasks([...tasks, { text: input, id: Date.now(), checked: false }]);
+  const addOrUpdateTask = () => {
+    if (!input.trim()) return;
+
+    if (editingId) {
+      // Update mode
+      setTasks(tasks.map((task) =>
+        task.id === editingId ? { ...task, text: input } : task
+      ));
+      setEditingId(null);
+    } else {
+      // Add mode
+      setTasks([...tasks, { text: input, id: uuidv4(), checked: false }]);
+    }
+    setInput("");
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks(tasks.filter((task) => task.id !== id));
+    if (editingId === id) {
+      setEditingId(null);
       setInput("");
     }
   };
 
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+  const startEditTask = (id: string, text: string) => {
+    setEditingId(id);
+    setInput(text);
   };
 
-  const updateTask = (id: number) => {
-    const newText = prompt("Update task:");
-    if (newText) {
-      setTasks(
-        tasks.map((task) =>
-          task.id === id ? { ...task, text: newText } : task
-        )
-      );
-    }
+  const cancelEdit = () => {
+    setEditingId(null);
+    setInput("");
   };
 
-  const toggleCheck = (id: number) => {
+  const toggleCheck = (id: string) => {
     setTasks(
       tasks.map((task) =>
         task.id === id ? { ...task, checked: !task.checked } : task
@@ -66,11 +80,18 @@ function Todo({ user, onLogout }: TodoProps) {
       <div className="todo-input">
         <input
           type="text"
-          placeholder="Enter a task..."
+          placeholder={editingId ? "Update task..." : "Enter a task..."}
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
-        <button onClick={addTask}>Add</button>
+        <button onClick={addOrUpdateTask}>
+          {editingId ? "Update" : "Add"}
+        </button>
+        {editingId && (
+          <button onClick={cancelEdit} style={{ backgroundColor: "#999" }}>
+            Cancel
+          </button>
+        )}
       </div>
 
       <ul className="todo-list">
@@ -83,7 +104,7 @@ function Todo({ user, onLogout }: TodoProps) {
             />
             <span>{task.text}</span>
             <div>
-              <button onClick={() => updateTask(task.id)}>Edit</button>
+              <button onClick={() => startEditTask(task.id, task.text)}>Edit</button>
               <button onClick={() => deleteTask(task.id)}>Delete</button>
             </div>
           </li>
