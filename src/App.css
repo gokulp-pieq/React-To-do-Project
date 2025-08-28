@@ -1,10 +1,11 @@
+/* ================= GLOBAL ================= */
 body {
-  font-family: Arial, sans-serif;
-  background: #f0f2f5; /* softer light gray background */
-  margin: 0;
-  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f4f8; /* soft, calm background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
 .app-container {
   display: flex;
   height: 100vh;
@@ -12,85 +13,262 @@ body {
   align-items: center;
 }
 
-.login-container button {
-  width: 100%;
-  padding: 10px;
-  font-size: 15px;
-}
-
-.login-container, .todo-container {
-  background: #ffffff; /* pure white card */
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.15); /* softer realistic shadow */
-  width: 50%;
+/* ================= LOGIN PAGE ================= */
+.login-container {
+  background: #ffffff;
+  padding: 3rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  width: 360px;
   text-align: center;
 }
-
-.login-container input, .todo-input input {
+.login-container h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: #2c3e50;
+}
+.login-container input {
   width: 100%;
-  padding: 8px;
+  padding: 12px;
   margin: 10px 0;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-
-button {
-  padding: 8px 12px;
-  margin: 5px;
+.login-container input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+  outline: none;
+}
+.login-container button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 1rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  background: #4a90e2; /* modern blue */
+  background: #4a90e2;
   color: white;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.login-container button:hover {
+  background: #357abd;
+  box-shadow: 0 4px 12px rgba(53, 122, 189, 0.4);
+}
+.login-container p {
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #555;
+}
+.login-container span {
+  color: #4a90e2;
+  cursor: pointer;
+  font-weight: 500;
 }
 
-button:hover {
-  background: #357abd; /* darker blue on hover */
+/* ================= TODO PAGE ================= */
+.todo-container {
+  background: #ffffff;
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  width: 520px;
+  max-width: 95%;
 }
-
-.todo-input {
+.todo-header {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.todo-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #2c3e50;
+}
+.logout-btn {
+  padding: 6px 14px;
+  background-color: #e74c3c;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.logout-btn:hover {
+  background-color: #c0392b;
+  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.4);
+}
+
+.primary-btn {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #27ae60;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.primary-btn:hover {
+  background-color: #219150;
+  box-shadow: 0 4px 12px rgba(33, 145, 80, 0.4);
 }
 
 .todo-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
-
 .todo-list li {
-  background: #f7f9fc; /* soft light background for tasks */
-  margin: 8px 0;
-  padding: 10px;
-  border-radius: 6px;
+  background: #f7f9fc;
+  margin: 10px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
-
 .checked span {
   text-decoration: line-through;
-  color: #999; /* softer gray for checked tasks */
+  color: #95a5a6;
 }
 
-.todo-header {
+.task-info {
+  flex-grow: 1;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+.task-info strong {
+  font-size: 1rem;
+  color: #2c3e50;
+}
+.task-info p {
+  margin: 4px 0 0 0;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.task-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 6px;
+}
+.task-actions button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.task-actions .danger-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+.task-actions .danger-btn:hover {
+  background-color: #c0392b;
+}
+.task-actions button:hover {
+  opacity: 0.85;
+}
+
+/* ================= MODALS ================= */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal {
+  background-color: #ffffff;
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.2);
+}
+.modal h3 {
+  margin-top: 0;
+  font-size: 1.3rem;
+  color: #2c3e50;
+}
+.modal input,
+.modal textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  resize: vertical;
+}
+.modal-buttons {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  margin-top: 1.2rem;
 }
-
-.logout-btn {
-  padding: 6px 12px;
-  background-color: #e74c3c; /* red */
-  border: none;
-  border-radius: 5px;
+.secondary-btn {
+  background-color: #7f8c8d;
   color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
   cursor: pointer;
 }
+.secondary-btn:hover { background-color: #606b75; }
+.danger-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+.danger-btn:hover { background-color: #c0392b; }
 
-.logout-btn:hover {
-  background-color: #c0392b; /* darker red */
+/* ================= CUSTOM CHECKBOX ================= */
+.custom-checkbox {
+  width: 22px;
+  height: 22px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: 2px solid #27ae60;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  flex-grow: 0;
+  margin-top: 4px;
+  transition: all 0.2s;
+}
+.custom-checkbox:checked {
+  background-color: #27ae60;
+  border-color: #1e8449;
+}
+.custom-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 7px;
+  width: 5px;
+  height: 11px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }

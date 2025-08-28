@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 
 type Task = {
   id: string;
-  text: string;
+  title: string;
+  description: string;
   checked: boolean;
 };
 
@@ -14,8 +15,11 @@ type TodoProps = {
 
 function Todo({ user, onLogout }: TodoProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [input, setInput] = useState<string>("");
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem(`tasks_${user}`) || "[]") as Task[];
@@ -26,90 +30,139 @@ function Todo({ user, onLogout }: TodoProps) {
     localStorage.setItem(`tasks_${user}`, JSON.stringify(tasks));
   }, [tasks, user]);
 
-  const addOrUpdateTask = () => {
-    if (!input.trim()) return;
+  const openAddModal = () => {
+    setEditingTask(null);
+    setTitle("");
+    setDescription("");
+    setIsModalOpen(true);
+  };
 
-    if (editingId) {
-      // Update mode
-      setTasks(tasks.map((task) =>
-        task.id === editingId ? { ...task, text: input } : task
-      ));
-      setEditingId(null);
+  const openEditModal = (task: Task) => {
+    setEditingTask(task);
+    setTitle(task.title);
+    setDescription(task.description);
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = () => {
+    if (!title.trim()) return;
+
+    if (editingTask) {
+      setTasks(tasks.map(t => t.id === editingTask.id ? { ...t, title, description } : t));
     } else {
-      // Add mode
-      setTasks([...tasks, { text: input, id: uuidv4(), checked: false }]);
+      setTasks([...tasks, { id: uuidv4(), title, description, checked: false }]);
     }
-    setInput("");
+
+    setIsModalOpen(false);
+    setTitle("");
+    setDescription("");
+    setEditingTask(null);
   };
 
-  const deleteTask = (id: string) => {
-    setTasks(tasks.filter((task) => task.id !== id));
-    if (editingId === id) {
-      setEditingId(null);
-      setInput("");
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setTitle("");
+    setDescription("");
+    setEditingTask(null);
+  };
+
+  const confirmDeleteTask = (id: string) => {
+    setDeleteTaskId(id);
+  };
+
+  const handleDelete = () => {
+    if (deleteTaskId) {
+      setTasks(tasks.filter(t => t.id !== deleteTaskId));
+      setDeleteTaskId(null);
     }
   };
 
-  const startEditTask = (id: string, text: string) => {
-    setEditingId(id);
-    setInput(text);
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setInput("");
-  };
+  const cancelDelete = () => setDeleteTaskId(null);
 
   const toggleCheck = (id: string) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, checked: !task.checked } : task
-      )
-    );
+    setTasks(tasks.map(t => t.id === id ? { ...t, checked: !t.checked } : t));
   };
+
+  const pendingTasks = tasks.filter(t => !t.checked);
+  const completedTasks = tasks.filter(t => t.checked);
 
   return (
     <div className="todo-container">
       <div className="todo-header">
         <h2>{user}'s ToDo List</h2>
-        <button className="logout-btn" onClick={onLogout}>
-          Logout
-        </button>
+        <button className="logout-btn" onClick={onLogout}>Logout</button>
       </div>
 
-      <div className="todo-input">
-        <input
-          type="text"
-          placeholder={editingId ? "Update task..." : "Enter a task..."}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <button onClick={addOrUpdateTask}>
-          {editingId ? "Update" : "Add"}
-        </button>
-        {editingId && (
-          <button onClick={cancelEdit} style={{ backgroundColor: "#999" }}>
-            Cancel
-          </button>
-        )}
-      </div>
+      <button className="primary-btn" onClick={openAddModal}>Add New Task</button>
 
+      {/* Pending Tasks */}
+      <h3>Pending Tasks</h3>
       <ul className="todo-list">
-        {tasks.map((task) => (
-          <li key={task.id} className={task.checked ? "checked" : ""}>
-            <input
-              type="checkbox"
-              checked={task.checked}
-              onChange={() => toggleCheck(task.id)}
-            />
-            <span>{task.text}</span>
-            <div>
-              <button onClick={() => startEditTask(task.id, task.text)}>Edit</button>
-              <button onClick={() => deleteTask(task.id)}>Delete</button>
+        {pendingTasks.map(task => (
+          <li key={task.id}>
+            <input type="checkbox" className="custom-checkbox" checked={task.checked} onChange={() => toggleCheck(task.id)} />
+            <div className="task-info">
+              <strong>{task.title}</strong>
+              <p>{task.description}</p>
+            </div>
+            <div className="task-actions">
+              <button onClick={() => openEditModal(task)}>Edit</button>
+              <button className="danger-btn" onClick={() => confirmDeleteTask(task.id)}>Delete</button>
             </div>
           </li>
         ))}
       </ul>
+
+      {/* Completed Tasks */}
+      {completedTasks.length > 0 && (
+        <>
+          <h3>Completed Tasks</h3>
+          <ul className="todo-list">
+            {completedTasks.map(task => (
+              <li key={task.id} className="checked">
+                <input type="checkbox" className="custom-checkbox" checked={task.checked} onChange={() => toggleCheck(task.id)} />
+                <div className="task-info">
+                  <strong>{task.title}</strong>
+                  <p>{task.description}</p>
+                </div>
+                <div className="task-actions">
+                  <button onClick={() => openEditModal(task)}>Edit</button>
+                  <button className="danger-btn" onClick={() => confirmDeleteTask(task.id)}>Delete</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {/* Add/Edit Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>{editingTask ? "Update Task" : "Add New Task"}</h3>
+            <input type="text" placeholder="Task Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <textarea placeholder="Task Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <div className="modal-buttons">
+              <button className="primary-btn" onClick={handleSubmit}>{editingTask ? "Update" : "Add"}</button>
+              <button className="secondary-btn" onClick={handleCancel}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteTaskId && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this task?</p>
+            <div className="modal-buttons">
+              <button className="danger-btn" onClick={handleDelete}>Delete</button>
+              <button className="secondary-btn" onClick={cancelDelete}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
