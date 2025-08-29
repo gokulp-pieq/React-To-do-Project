@@ -5,32 +5,61 @@ type LoginProps = {
 };
 
 function Login({ onLogin }: LoginProps) {
-  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignup, setIsSignup] = useState(false); // toggle between login/signup
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!username.trim() || !password.trim()) return;
-
-    const users = JSON.parse(localStorage.getItem("users") || "{}");
+    if (!email.trim() || !password.trim() || (isSignup && (!firstName.trim() || !lastName.trim()))) return;
 
     if (isSignup) {
-      if (users[username]) {
-        alert("User already exists. Please login.");
-      } else {
-        users[username] = password;
-        localStorage.setItem("users", JSON.stringify(users));
+      try {
+        const response = await fetch("http://localhost:8085/users/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ firstName, lastName, email, password }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert(errorData.message || "Signup failed");
+          return;
+        }
+
         alert("Signup successful! Please login.");
         setIsSignup(false);
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        setPassword("");
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong. Try again.");
       }
     } else {
-      if (users[username] && users[username] === password) {
-        localStorage.setItem("user", username);
-        onLogin(username);
-      } else {
-        alert("Invalid username or password.");
+      // login
+      try {
+        const response = await fetch("http://localhost:8085/users/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert(errorData.message || "Invalid email or password");
+          return;
+        }
+
+        const data = await response.json();
+        onLogin(data.email); // store logged-in email
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong. Try again.");
       }
     }
   };
@@ -39,15 +68,31 @@ function Login({ onLogin }: LoginProps) {
     <div className="login-container">
       <h2>{isSignup ? "Sign Up" : "Login"}</h2>
       <form onSubmit={handleSubmit}>
+        {isSignup && (
+          <>
+            <input
+              type="text"
+              placeholder="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+          </>
+        )}
         <input
           type="text"
-          placeholder="Enter username..."
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"
-          placeholder="Enter password..."
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />

@@ -89,7 +89,7 @@ function Todo({ user, onLogout }: TodoProps) {
   return (
     <div className="todo-container">
       <div className="todo-header">
-        <h2>{user}'s ToDo List</h2>
+        <h2>My ToDo List</h2>
         <button className="logout-btn" onClick={onLogout}>Logout</button>
       </div>
 
