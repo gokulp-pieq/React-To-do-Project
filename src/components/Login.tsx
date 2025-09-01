@@ -56,7 +56,8 @@ function Login({ onLogin }: LoginProps) {
         }
 
         const data = await response.json();
-        onLogin(data.email); // store logged-in email
+        localStorage.setItem("user", data.emp_id);
+        onLogin(data.emp_id); // store logged-in empId
       } catch (err) {
         console.error(err);
         alert("Something went wrong. Try again.");

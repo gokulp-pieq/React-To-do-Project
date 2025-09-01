@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Login from "./login.tsx";
-import Todo from "./todo.tsx";
+import Login from "./components/Login.tsx";
+import Todo from "./components/Todo.tsx";
 
 function App() {
   // user is either a string (username) or null

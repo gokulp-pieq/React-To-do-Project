@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
 
 type Task = {
   id: string;
   title: string;
   description: string;
-  checked: boolean;
+  status: boolean;
 };
 
 type TodoProps = {
@@ -21,14 +20,22 @@ function Todo({ user, onLogout }: TodoProps) {
   const [description, setDescription] = useState("");
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem(`tasks_${user}`) || "[]") as Task[];
-    setTasks(saved);
-  }, [user]);
+  // Fetch tasks from backend
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch(`http://localhost:8085/tasks/employee/${user}`);
+      if (!res.ok) throw new Error("Failed to fetch tasks");
+      const data: Task[] = await res.json();
+      setTasks(data);
+    } catch (err) {
+      console.error(err);
+      alert("Could not load tasks");
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem(`tasks_${user}`, JSON.stringify(tasks));
-  }, [tasks, user]);
+    fetchTasks();
+  }, [user]);
 
   const openAddModal = () => {
     setEditingTask(null);
@@ -44,19 +51,37 @@ function Todo({ user, onLogout }: TodoProps) {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim()) return;
 
-    if (editingTask) {
-      setTasks(tasks.map(t => t.id === editingTask.id ? { ...t, title, description } : t));
-    } else {
-      setTasks([...tasks, { id: uuidv4(), title, description, checked: false }]);
-    }
+    try {
+      if (editingTask) {
+        // Update task
+        const res = await fetch(`http://localhost:8085/tasks/${editingTask.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, description, status: editingTask.status }),
+        });
+        if (!res.ok) throw new Error("Failed to update task");
+      } else {
+        // Create task
+        const res = await fetch(`http://localhost:8085/tasks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ emp_id:user, title, description, status: false }),
+        });
+        if (!res.ok) throw new Error("Failed to create task");
+      }
 
-    setIsModalOpen(false);
-    setTitle("");
-    setDescription("");
-    setEditingTask(null);
+      setIsModalOpen(false);
+      setTitle("");
+      setDescription("");
+      setEditingTask(null);
+      fetchTasks(); // Refresh tasks from backend
+    } catch (err) {
+      console.error(err);
+      alert("Error saving task");
+    }
   };
 
   const handleCancel = () => {
@@ -66,25 +91,43 @@ function Todo({ user, onLogout }: TodoProps) {
     setEditingTask(null);
   };
 
-  const confirmDeleteTask = (id: string) => {
-    setDeleteTaskId(id);
-  };
+  const confirmDeleteTask = (id: string) => setDeleteTaskId(id);
 
-  const handleDelete = () => {
-    if (deleteTaskId) {
-      setTasks(tasks.filter(t => t.id !== deleteTaskId));
+  const handleDelete = async () => {
+    if (!deleteTaskId) return;
+
+    try {
+      const res = await fetch(`http://localhost:8085/tasks/${deleteTaskId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete task");
       setDeleteTaskId(null);
+      fetchTasks(); // Refresh tasks
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting task");
     }
   };
 
   const cancelDelete = () => setDeleteTaskId(null);
 
-  const toggleCheck = (id: string) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, checked: !t.checked } : t));
+  const toggleCheck = async (task: Task) => {
+    try {
+      const res = await fetch(`http://localhost:8085/tasks/${task.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: task.title, description: task.description, status: !task.status }),
+      });
+      if (!res.ok) throw new Error("Failed to update task status");
+      fetchTasks(); // Refresh tasks
+    } catch (err) {
+      console.error(err);
+      alert("Error updating task status");
+    }
   };
 
-  const pendingTasks = tasks.filter(t => !t.checked);
-  const completedTasks = tasks.filter(t => t.checked);
+  const pendingTasks = tasks.filter(t => !t.status);
+  const completedTasks = tasks.filter(t => t.status);
 
   return (
     <div className="todo-container">
@@ -95,12 +138,11 @@ function Todo({ user, onLogout }: TodoProps) {
 
       <button className="primary-btn" onClick={openAddModal}>Add New Task</button>
 
-      {/* Pending Tasks */}
       <h3>Pending Tasks</h3>
       <ul className="todo-list">
         {pendingTasks.map(task => (
           <li key={task.id}>
-            <input type="checkbox" className="custom-checkbox" checked={task.checked} onChange={() => toggleCheck(task.id)} />
+            <input type="checkbox" checked={task.status} onChange={() => toggleCheck(task)} />
             <div className="task-info">
               <strong>{task.title}</strong>
               <p>{task.description}</p>
@@ -113,14 +155,13 @@ function Todo({ user, onLogout }: TodoProps) {
         ))}
       </ul>
 
-      {/* Completed Tasks */}
       {completedTasks.length > 0 && (
         <>
           <h3>Completed Tasks</h3>
           <ul className="todo-list">
             {completedTasks.map(task => (
               <li key={task.id} className="checked">
-                <input type="checkbox" className="custom-checkbox" checked={task.checked} onChange={() => toggleCheck(task.id)} />
+                <input type="checkbox" checked={task.status} onChange={() => toggleCheck(task)} />
                 <div className="task-info">
                   <strong>{task.title}</strong>
                   <p>{task.description}</p>
@@ -135,7 +176,6 @@ function Todo({ user, onLogout }: TodoProps) {
         </>
       )}
 
-      {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
@@ -150,7 +190,6 @@ function Todo({ user, onLogout }: TodoProps) {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {deleteTaskId && (
         <div className="modal-overlay">
           <div className="modal">
